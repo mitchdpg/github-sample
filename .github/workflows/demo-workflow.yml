@@ -1,6 +1,6 @@
 name: github-pipeline-001
 permissions:
-  id-token: write # This  required for requesting the JWT 
+  id-token: write # This is required for requesting the JWT 
   contents: read  # This is required for checkout
 on:
   push:
@@ -8,6 +8,23 @@ on:
   pull_request:
     branches: [ "main" ]
 
+workflow_dispatch:
+    inputs:
+      # Optional inputs can be defined to prompt for information
+      environment:
+        description: 'Target environment'
+        type: choice
+        required: true
+        options:
+          - development
+          - staging
+          - production
+      version_tag:
+        description: 'Version tag to deploy'
+        type: string
+        required: false
+        default: 'latest'
+        
 jobs:
   fetch-secret-from-conjur:
     runs-on: ubuntu-latest
@@ -23,3 +40,14 @@ jobs:
         run: echo $SECRET1 | sed 's/./& /g'
       - name : Echo PASSWORD
         run: echo $SECRET2 | sed 's/./& /g'
+
+run-manual-task:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run task with inputs
+        run: |
+          echo "Workflow triggered manually by ${{ github.actor }}"
+          echo "Deploying to ${{ github.event.inputs.environment }}"
+          echo "Deploying version ${{ github.event.inputs.version_tag }}"
