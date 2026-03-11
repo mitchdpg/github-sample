@@ -9,7 +9,7 @@ on:
     branches: [ "main" ]
     workflow_dispatch:
     inputs:
-
+      # Optional inputs can be defined to prompt for information
       environment:
         description: 'Target environment'
         type: choice
